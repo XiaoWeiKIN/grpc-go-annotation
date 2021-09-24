@@ -141,38 +141,50 @@ type Server struct {
 }
 
 type serverOptions struct {
-	creds                 credentials.TransportCredentials // cred证书
-	codec                 baseCodec
-	cp                    Compressor
-	dc                    Decompressor
-	unaryInt              UnaryServerInterceptor
-	streamInt             StreamServerInterceptor
-	chainUnaryInts        []UnaryServerInterceptor
-	chainStreamInts       []StreamServerInterceptor
-	inTapHandle           tap.ServerInHandle
-	statsHandler          stats.Handler
-	maxConcurrentStreams  uint32
+	creds                credentials.TransportCredentials // cred证书
+	codec                baseCodec                        //序列化和反序列化器
+	cp                   Compressor                       // 压缩
+	dc                   Decompressor                     // 解压缩
+	unaryInt             UnaryServerInterceptor           // 一元server拦截器
+	streamInt            StreamServerInterceptor          // 流请求 server拦截器
+	chainUnaryInts       []UnaryServerInterceptor
+	chainStreamInts      []StreamServerInterceptor
+	inTapHandle          tap.ServerInHandle
+	statsHandler         stats.Handler
+	maxConcurrentStreams uint32 // 最大并发流
+	// 设置服务器可以接收的最大消息大小(以字节为单位)。如果没有设置，gRPC将使用默认的4MB。
 	maxReceiveMessageSize int
-	maxSendMessageSize    int
-	unknownStreamDesc     *StreamDesc
-	keepaliveParams       keepalive.ServerParameters
-	keepalivePolicy       keepalive.EnforcementPolicy
-	initialWindowSize     int32
+	// 设置服务器可以发送的最大消息大小(以字节为单位)。如果没有设置，gRPC将使用默认的' math.MaxInt32 '。
+	maxSendMessageSize int // server 端最大接收字节数
+	unknownStreamDesc  *StreamDesc
+	keepaliveParams    keepalive.ServerParameters
+	keepalivePolicy    keepalive.EnforcementPolicy
+	// 流窗口大小，窗口大小的下限是64K，任何小于这个值的值都将被忽略。
+	initialWindowSize int32
+	// 连接窗口大小，窗口大小的下限是64K，任何小于这个值的值都将被忽略。
 	initialConnWindowSize int32
-	writeBufferSize       int
-	readBufferSize        int
-	connectionTimeout     time.Duration
-	maxHeaderListSize     *uint32
-	headerTableSize       *uint32
-	numServerWorkers      uint32
+	writeBufferSize       int           // http2IOBufSize 发送帧的缓冲区大小
+	readBufferSize        int           // http2IOBufSize 读缓冲区大小
+	connectionTimeout     time.Duration // 连接超时时间
+	// 设置 serrver http2 首部列表（未压缩）最大值
+	// 参见 https://httpwg.org/specs/rfc7540.html#HeaderBlock
+	maxHeaderListSize *uint32
+	// 设置
+	headerTableSize  *uint32
+	numServerWorkers uint32 //
 }
 
 var defaultServerOptions = serverOptions{
+	// server 端最大接收字节数
 	maxReceiveMessageSize: defaultServerMaxReceiveMessageSize,
-	maxSendMessageSize:    defaultServerMaxSendMessageSize,
-	connectionTimeout:     120 * time.Second,
-	writeBufferSize:       defaultWriteBufSize,
-	readBufferSize:        defaultReadBufSize,
+	// server 端最大发送节数
+	maxSendMessageSize: defaultServerMaxSendMessageSize,
+	// 连接超时间 2min
+	connectionTimeout: 120 * time.Second,
+	// http2IOBufSize 发送帧的缓冲区大小
+	writeBufferSize: defaultWriteBufSize,
+	// http2IOBufSize 读缓冲区大小
+	readBufferSize: defaultReadBufSize,
 }
 
 // A ServerOption sets options such as credentials, codec and keepalive parameters, etc.
