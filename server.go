@@ -151,7 +151,7 @@ type serverOptions struct {
 	chainStreamInts      []StreamServerInterceptor
 	inTapHandle          tap.ServerInHandle
 	statsHandler         stats.Handler
-	maxConcurrentStreams uint32 // 最大并发流
+	maxConcurrentStreams uint32
 	// 设置服务器可以接收的最大消息大小(以字节为单位)。如果没有设置，gRPC将使用默认的4MB。
 	maxReceiveMessageSize int
 	// 设置服务器可以发送的最大消息大小(以字节为单位)。如果没有设置，gRPC将使用默认的' math.MaxInt32 '。
@@ -169,22 +169,17 @@ type serverOptions struct {
 	// 设置 serrver http2 首部列表（未压缩）最大值
 	// 参见 https://httpwg.org/specs/rfc7540.html#HeaderBlock
 	maxHeaderListSize *uint32
-	// 设置
+	// 设置 http2 压缩上下文 HeaderTable大小
 	headerTableSize  *uint32
 	numServerWorkers uint32 //
 }
 
 var defaultServerOptions = serverOptions{
-	// server 端最大接收字节数
 	maxReceiveMessageSize: defaultServerMaxReceiveMessageSize,
-	// server 端最大发送节数
-	maxSendMessageSize: defaultServerMaxSendMessageSize,
-	// 连接超时间 2min
-	connectionTimeout: 120 * time.Second,
-	// http2IOBufSize 发送帧的缓冲区大小
-	writeBufferSize: defaultWriteBufSize,
-	// http2IOBufSize 读缓冲区大小
-	readBufferSize: defaultReadBufSize,
+	maxSendMessageSize:    defaultServerMaxSendMessageSize,
+	connectionTimeout:     120 * time.Second,
+	writeBufferSize:       defaultWriteBufSize,
+	readBufferSize:        defaultReadBufSize,
 }
 
 // A ServerOption sets options such as credentials, codec and keepalive parameters, etc.
